@@ -4,9 +4,11 @@ import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { insertManuscriptSchema, insertDocumentSchema } from "@shared/schema";
 import { analyzeManuscript } from "./openai";
+import { setupFileUpload } from "./upload";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
+  setupFileUpload(app);
 
   // Manuscripts
   app.get("/api/manuscripts", async (req, res) => {

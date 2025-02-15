@@ -9,6 +9,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Manuscript } from "@shared/schema";
 import { Save, Loader2 } from "lucide-react";
+import { FileUpload } from "./file-upload";
 
 export function ManuscriptEditor({ manuscript }: { manuscript: Manuscript }) {
   const [title, setTitle] = useState(manuscript.title);
@@ -51,6 +52,13 @@ export function ManuscriptEditor({ manuscript }: { manuscript: Manuscript }) {
     },
   });
 
+  const handleFileUpload = (content: string) => {
+    if (editor) {
+      editor.commands.setContent(content);
+      saveMutation.mutate();
+    }
+  };
+
   return (
     <Card className="min-h-[600px] flex flex-col">
       <CardHeader className="flex-none space-y-4">
@@ -73,6 +81,7 @@ export function ManuscriptEditor({ manuscript }: { manuscript: Manuscript }) {
             Save
           </Button>
         </div>
+        <FileUpload onUploadComplete={handleFileUpload} />
       </CardHeader>
       <CardContent className="flex-1 overflow-auto">
         <EditorContent editor={editor} className="h-full" />

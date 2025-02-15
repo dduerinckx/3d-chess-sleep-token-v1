@@ -18,6 +18,7 @@ import { Plus, Loader2, Trash2, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
+import { FileUpload } from "@/components/file-upload";
 
 export default function KnowledgeBasePage() {
   const { user } = useAuth();
@@ -78,6 +79,10 @@ export default function KnowledgeBasePage() {
     },
   });
 
+  const handleFileUpload = (fileContent: string) => {
+    setContent(fileContent);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -109,6 +114,10 @@ export default function KnowledgeBasePage() {
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Document title"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>Upload File</Label>
+                <FileUpload onUploadComplete={handleFileUpload} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="content">Content</Label>
