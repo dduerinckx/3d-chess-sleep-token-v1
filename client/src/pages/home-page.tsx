@@ -29,7 +29,7 @@ export default function HomePage() {
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/manuscripts", {
         title: "Untitled Manuscript",
-        content: "",
+        content: " ",  // Add a space to satisfy non-empty requirement
         isPublic: false,
       });
       return await res.json();

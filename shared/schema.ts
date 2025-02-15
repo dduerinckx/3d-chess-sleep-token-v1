@@ -49,7 +49,7 @@ export const insertManuscriptSchema = createInsertSchema(manuscripts)
   })
   .extend({
     title: z.string().min(1, "Title is required"),
-    content: z.string().min(1, "Content is required"),
+    content: z.string(), // Remove minimum length requirement for initial creation
   });
 
 export const insertReviewSchema = createInsertSchema(reviews).pick({
