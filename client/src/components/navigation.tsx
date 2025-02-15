@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Loader2, Book, LogOut } from "lucide-react";
+import { Loader2, Book, LogOut, Database } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -34,6 +34,13 @@ export function Navigation() {
                 <Link href="/">
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Manuscripts
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/knowledge-base">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Knowledge Base
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>

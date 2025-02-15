@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import HomePage from "@/pages/home-page";
 import EditorPage from "@/pages/editor-page";
+import KnowledgeBasePage from "@/pages/knowledge-base";
 
 function Router() {
   return (
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/" component={HomePage} />
       <ProtectedRoute path="/manuscripts/:id" component={EditorPage} />
+      <ProtectedRoute path="/knowledge-base" component={KnowledgeBasePage} />
       <Route component={NotFound} />
     </Switch>
   );
