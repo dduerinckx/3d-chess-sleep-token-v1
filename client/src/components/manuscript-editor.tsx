@@ -54,8 +54,20 @@ export function ManuscriptEditor({ manuscript }: { manuscript: Manuscript }) {
 
   const handleFileUpload = (content: string) => {
     if (editor) {
-      editor.commands.setContent(content);
-      saveMutation.mutate();
+      try {
+        // Attempt to sanitize or format the uploaded content if necessary.  This is placeholder logic.
+        const formattedContent = content.replace(/<[^>]*>/g, ''); //Example: remove HTML tags.  Replace with actual sanitization/formatting.
+
+        editor.commands.setContent(formattedContent);
+        saveMutation.mutate();
+      } catch (error) {
+        console.error("Error processing uploaded content:", error);
+        toast({
+          title: "Error uploading file",
+          description: "Could not process the uploaded file.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
