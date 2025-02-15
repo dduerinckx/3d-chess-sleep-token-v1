@@ -3,22 +3,21 @@ import { ManuscriptEditor } from "@/components/manuscript-editor";
 import { ReviewPanel } from "@/components/review-panel";
 import { useQuery } from "@tanstack/react-query";
 import type { Manuscript } from "@shared/schema";
-import { Loader2 } from "lucide-react";
-import { useParams } from "wouter";
+import { Loader2, AlertCircle } from "lucide-react";
+import { useParams, useLocation } from "wouter";
 
 export default function EditorPage() {
   const { id } = useParams();
-  const manuscriptId = id ? parseInt(id) : undefined;
+  const [, navigate] = useLocation();
+  const manuscriptId = id ? parseInt(id) : null;
 
-  if (!manuscriptId) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-muted-foreground">Invalid manuscript ID</p>
-      </div>
-    );
+  // Redirect to home if ID is invalid
+  if (!manuscriptId || isNaN(manuscriptId)) {
+    navigate("/");
+    return null;
   }
 
-  const { data: manuscript, isLoading } = useQuery<Manuscript>({
+  const { data: manuscript, isLoading, error } = useQuery<Manuscript>({
     queryKey: [`/api/manuscripts/${manuscriptId}`],
   });
 
@@ -30,10 +29,21 @@ export default function EditorPage() {
     );
   }
 
-  if (!manuscript) {
+  if (error || !manuscript) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-muted-foreground">Manuscript not found</p>
+        <div className="text-center space-y-4">
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+          <p className="text-lg text-muted-foreground">
+            {error?.message || "Manuscript not found"}
+          </p>
+          <button 
+            onClick={() => navigate("/")}
+            className="text-primary hover:underline"
+          >
+            Return to Home
+          </button>
+        </div>
       </div>
     );
   }

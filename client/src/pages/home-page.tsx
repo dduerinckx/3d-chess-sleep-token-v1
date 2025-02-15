@@ -32,11 +32,19 @@ export default function HomePage() {
         content: " ",  // Add a space to satisfy non-empty requirement
         isPublic: false,
       });
-      return await res.json();
+      const data = await res.json();
+      if (!data.id) {
+        throw new Error("Failed to create manuscript");
+      }
+      return data;
     },
     onSuccess: (manuscript: Manuscript) => {
       queryClient.invalidateQueries({ queryKey: ["/api/manuscripts"] });
       navigate(`/manuscripts/${manuscript.id}`);
+      toast({
+        title: "Manuscript created",
+        description: "You can now start editing your manuscript.",
+      });
     },
     onError: (error: Error) => {
       toast({
