@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
-import { insertManuscriptSchema, insertDocumentSchema } from "@shared/schema";
+import { insertManuscriptSchema, insertDocumentSchema, insertBookGenerationSchema } from "@shared/schema";
 import { analyzeManuscript } from "./openai";
 import { setupFileUpload } from "./upload";
 
@@ -152,6 +152,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     await storage.deleteDocument(document.id);
     res.sendStatus(204);
+  });
+
+  // Book Generation Routes
+  app.post("/api/book-generations", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+
+    const parsed = insertBookGenerationSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json(parsed.error);
+
+    try {
+      const bookGeneration = await storage.createBookGeneration({
+        ...parsed.data,
+        userId: req.user.id,
+      });
+      res.status(201).json(bookGeneration);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      res.status(500).json({ message: errorMessage });
+    }
+  });
+
+  app.get("/api/book-generations", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+
+    try {
+      const generations = await storage.getBookGenerationsByUser(req.user.id);
+      res.json(generations);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      res.status(500).json({ message: errorMessage });
+    }
+  });
+
+  app.get("/api/book-generations/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+
+    try {
+      const generation = await storage.getBookGeneration(parseInt(req.params.id));
+      if (!generation) return res.sendStatus(404);
+      if (generation.userId !== req.user.id) return res.sendStatus(403);
+
+      const chapters = await storage.getBookChaptersByGeneration(generation.id);
+      res.json({ ...generation, chapters });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      res.status(500).json({ message: errorMessage });
+    }
+  });
+
+  app.get("/api/book-generations/:id/chapters", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+
+    try {
+      const generation = await storage.getBookGeneration(parseInt(req.params.id));
+      if (!generation) return res.sendStatus(404);
+      if (generation.userId !== req.user.id) return res.sendStatus(403);
+
+      const chapters = await storage.getBookChaptersByGeneration(generation.id);
+      res.json(chapters);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      res.status(500).json({ message: errorMessage });
+    }
   });
 
   const httpServer = createServer(app);

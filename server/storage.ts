@@ -1,4 +1,4 @@
-import { User, InsertUser, Manuscript, InsertManuscript, Review, InsertReview, Document, InsertDocument } from "@shared/schema";
+import { User, InsertUser, Manuscript, InsertManuscript, Review, InsertReview, Document, InsertDocument, BookGeneration, InsertBookGeneration, BookChapter, InsertBookChapter } from "@shared/schema";
 import session from "express-session";
 import { db } from "./db";
 import * as schema from "@shared/schema";
@@ -35,6 +35,17 @@ export interface IStorage {
   updateDocument(id: number, document: Partial<InsertDocument> & { embedding?: number[] }): Promise<Document>;
   deleteDocument(id: number): Promise<void>;
   searchDocuments(userId: number, embedding: number[], limit?: number): Promise<Document[]>;
+
+  // New book generation operations
+  getBookGeneration(id: number): Promise<BookGeneration | undefined>;
+  getBookGenerationsByUser(userId: number): Promise<BookGeneration[]>;
+  createBookGeneration(bookGeneration: InsertBookGeneration & { userId: number }): Promise<BookGeneration>;
+  updateBookGenerationStatus(id: number, status: string, completedAt?: Date): Promise<BookGeneration>;
+
+  // Book chapter operations
+  getBookChapter(id: number): Promise<BookChapter | undefined>;
+  getBookChaptersByGeneration(bookGenerationId: number): Promise<BookChapter[]>;
+  createBookChapter(chapter: InsertBookChapter): Promise<BookChapter>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -171,6 +182,81 @@ export class DatabaseStorage implements IStorage {
   ): Promise<Document[]> {
     // For now, return all documents. In a future update, we'll implement vector similarity search
     return await this.getDocumentsByUser(userId);
+  }
+
+  async getBookGeneration(id: number): Promise<BookGeneration | undefined> {
+    const [generation] = await db
+      .select()
+      .from(schema.bookGenerations)
+      .where(eq(schema.bookGenerations.id, id));
+    return generation;
+  }
+
+  async getBookGenerationsByUser(userId: number): Promise<BookGeneration[]> {
+    return await db
+      .select()
+      .from(schema.bookGenerations)
+      .where(eq(schema.bookGenerations.userId, userId))
+      .orderBy(desc(schema.bookGenerations.createdAt));
+  }
+
+  async createBookGeneration(
+    bookGeneration: InsertBookGeneration & { userId: number }
+  ): Promise<BookGeneration> {
+    const [generation] = await db
+      .insert(schema.bookGenerations)
+      .values({
+        ...bookGeneration,
+        status: 'pending',
+        createdAt: new Date(),
+      })
+      .returning();
+    return generation;
+  }
+
+  async updateBookGenerationStatus(
+    id: number,
+    status: string,
+    completedAt?: Date
+  ): Promise<BookGeneration> {
+    const [updated] = await db
+      .update(schema.bookGenerations)
+      .set({
+        status,
+        completedAt: completedAt || null,
+      })
+      .where(eq(schema.bookGenerations.id, id))
+      .returning();
+
+    if (!updated) throw new Error("Book generation not found");
+    return updated;
+  }
+
+  async getBookChapter(id: number): Promise<BookChapter | undefined> {
+    const [chapter] = await db
+      .select()
+      .from(schema.bookChapters)
+      .where(eq(schema.bookChapters.id, id));
+    return chapter;
+  }
+
+  async getBookChaptersByGeneration(bookGenerationId: number): Promise<BookChapter[]> {
+    return await db
+      .select()
+      .from(schema.bookChapters)
+      .where(eq(schema.bookChapters.bookGenerationId, bookGenerationId))
+      .orderBy(schema.bookChapters.chapterNumber);
+  }
+
+  async createBookChapter(chapter: InsertBookChapter): Promise<BookChapter> {
+    const [newChapter] = await db
+      .insert(schema.bookChapters)
+      .values({
+        ...chapter,
+        createdAt: new Date(),
+      })
+      .returning();
+    return newChapter;
   }
 }
 
