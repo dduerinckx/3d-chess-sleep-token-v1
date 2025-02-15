@@ -13,8 +13,15 @@ const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 
 export function setupFileUpload(app: Express) {
   app.use(fileUpload({
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max file size
+    limits: { 
+      fileSize: 50 * 1024 * 1024  // Increase to 50MB
+    },
     abortOnLimit: true,
+    limitHandler: function(req, res) {
+      return res.status(413).json({ 
+        message: "File is too large. Maximum size is 50MB." 
+      });
+    }
   }));
 
   app.post("/api/upload", async (req: Request, res: Response) => {
