@@ -36,3 +36,7 @@ desktop.ini
 
 # IDE
 *.code-workspace
+
+# Ignore embedded repos accidentally added
+/3d-chess-sleep-token/
+/3d-chess-sleep-token-v1/
