@@ -1,0 +1,38 @@
+# Folders to ignore
+node_modules/
+dist/
+build/
+.vscode/
+.bolt/
+
+# Logs and local config
+*.log
+*.tsbuildinfo
+*.env
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archives
+*.zip
+*.rar
+*.7z
+
+# Media
+*.mp3
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.gif
+
+# JSON config dumps
+*.json
+
+# TypeScript artifacts
+*.map
+
+# IDE
+*.code-workspace
