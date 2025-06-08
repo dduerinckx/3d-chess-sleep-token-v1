@@ -44,6 +44,13 @@ export function Navigation() {
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/chess">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Chess
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
